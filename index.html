@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <div class="icon-box">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Smart Home</h1>
+                    <p>Sensor Monitoring</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="updated-time">Updated: <span id="clock">08.36.28</span></span>
+                <button class="refresh-btn"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-card">
+            <div class="hero-header">
+                <div>
+                    <div class="hero-icon-title">
+                        <div class="pulse-icon"><i class="fas fa-wave-square"></i></div>
+                        <div>
+                            <h2>Status Monitoring</h2>
+                            <p>Real-time sensor data</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="live-badge">
+                    <span class="dot"></span> Live
+                </div>
+            </div>
+
+            <div class="hero-grid">
+                <!-- Water -->
+                <div class="stat-card">
+                    <div class="card-top">
+                        <div class="icon-circle water"><i class="fas fa-tint"></i></div>
+                        <span class="status-dot online"></span>
+                    </div>
+                    <div class="card-value">
+                        <h3>80</h3>
+                        <p>WQI • Air</p>
+                    </div>
+                </div>
+
+                <!-- Air -->
+                <div class="stat-card">
+                    <div class="card-top">
+                        <div class="icon-circle air"><i class="fas fa-wind"></i></div>
+                        <span class="status-dot online"></span>
+                    </div>
+                    <div class="card-value">
+                        <h3>88</h3>
+                        <p>AQI • Udara</p>
+                    </div>
+                </div>
+
+                <!-- Soil -->
+                <div class="stat-card">
+                    <div class="card-top">
+                        <div class="icon-circle soil"><i class="fas fa-mountain"></i></div>
+                        <span class="status-dot online"></span>
+                    </div>
+                    <div class="card-value">
+                        <h3>69</h3>
+                        <p>SQI • Tanah</p>
+                    </div>
+                </div>
+
+                <!-- Electric -->
+                <div class="stat-card">
+                    <div class="card-top">
+                        <div class="icon-circle electric"><i class="fas fa-bolt"></i></div>
+                        <span class="status-dot offline"></span>
+                    </div>
+                    <div class="card-value">
+                        <h3>0</h3>
+                        <p>W • Listrik</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-footer">
+                <div class="connection-status">
+                    <i class="fas fa-wifi"></i> Koneksi stabil
+                </div>
+                <div class="refresh-status">Auto-refresh 10s</div>
+            </div>
+        </section>
+
+        <!-- Detailed Cards Section -->
+        <section class="details-grid">
+            <!-- Water Detail -->
+            <div class="detail-card">
+                <div class="detail-header">
+                    <div class="icon-sq water"><i class="fas fa-tint"></i></div>
+                    <span class="status-dot online"></span>
+                </div>
+                <p class="label">Kualitas Air</p>
+                <div class="value-large">
+                    80 <span class="unit">WQI</span> <span class="sub-unit">WQI</span>
+                </div>
+            </div>
+
+            <!-- Air Detail -->
+            <div class="detail-card">
+                <div class="detail-header">
+                    <div class="icon-sq air"><i class="fas fa-wind"></i></div>
+                    <span class="status-dot online"></span>
+                </div>
+                <p class="label">Kualitas Udara</p>
+                <div class="value-large">
+                    88 <span class="unit">AQI</span> <span class="sub-unit">AQI</span>
+                </div>
+            </div>
+
+            <!-- Soil Detail -->
+            <div class="detail-card">
+                <div class="detail-header">
+                    <div class="icon-sq soil"><i class="fas fa-mountain"></i></div>
+                    <span class="status-dot online"></span>
+                </div>
+                <p class="label">Kualitas Tanah</p>
+                <div class="value-large">
+                    69 <span class="unit">SQI</span> <span class="sub-unit">SQI</span>
+                </div>
+            </div>
+
+            <!-- Electric Detail -->
+            <div class="detail-card">
+                <div class="detail-header">
+                    <div class="icon-sq electric"><i class="fas fa-bolt"></i></div>
+                    <span class="status-dot offline"></span>
+                </div>
+                <p class="label">Daya Listrik</p>
+                <div class="value-large">
+                    0 <span class="unit">W</span> <span class="sub-unit">W</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Monitoring Chart Section -->
+        <section class="chart-section">
+            <div class="chart-header">
+                <h3>Live Monitoring</h3>
+                <div class="time-filters">
+                    <button>Per Menit</button>
+                    <button class="active">Per Jam</button>
+                    <button>Per Hari</button>
+                </div>
+            </div>
+
+            <div class="chart-legend">
+                <div class="legend-item"><span class="dot-legend water"></span> Kualitas Air (WQI)</div>
+                <div class="legend-item"><span class="dot-legend air"></span> Kualitas Udara (AQI)</div>
+                <div class="legend-item"><span class="dot-legend soil"></span> Kualitas Tanah (SQI)</div>
+                <div class="legend-item"><span class="dot-legend electric"></span> Daya Listrik (W)</div>
+            </div>
+
+            <div class="chart-container">
+                <!-- Simple SVG Chart Mockup -->
+                <svg viewBox="0 0 1000 300" class="chart-svg">
+                    <!-- Grid Lines -->
+                    <line x1="50" y1="50" x2="950" y2="50" class="grid-line" />
+                    <line x1="50" y1="125" x2="950" y2="125" class="grid-line" />
+                    <line x1="50" y1="200" x2="950" y2="200" class="grid-line" />
+                    <line x1="50" y1="275" x2="950" y2="275" class="grid-line" />
+
+                    <!-- Y Axis Labels -->
+                    <text x="30" y="55" class="axis-text">100</text>
+                    <text x="30" y="130" class="axis-text">75</text>
+                    <text x="30" y="205" class="axis-text">50</text>
+                    <text x="30" y="280" class="axis-text">25</text>
+
+                    <!-- Chart Lines -->
+                    <!-- Water (Blue/Cyan) -->
+                    <path d="M50,110 Q200,110 350,110 T650,110 T950,110" class="line-path water-line" />
+                    <!-- Air (Green) -->
+                    <path d="M50,80 Q200,85 350,80 T650,80 T950,80" class="line-path air-line" />
+                    <!-- Soil (Purple) -->
+                    <path d="M50,180 Q200,170 350,175 T650,190 T950,160" class="line-path soil-line" />
+                    <!-- Electric (Yellow) -->
+                    <path d="M50,270 Q200,270 350,270 T650,270 T950,270" class="line-path electric-line" />
+
+                    <!-- X Axis Labels -->
+                    <text x="50" y="295" class="axis-text-x">07:42:24</text>
+                    <text x="200" y="295" class="axis-text-x">07:42:53</text>
+                    <text x="350" y="295" class="axis-text-x">07:43:40</text>
+                    <text x="500" y="295" class="axis-text-x">07:46:29</text>
+                    <text x="650" y="295" class="axis-text-x">07:47:33</text>
+                    <text x="800" y="295" class="axis-text-x">07:48:07</text>
+                    <text x="950" y="295" class="axis-text-x">07:53:00</text>
+                </svg>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // Simple script to update time
+        function updateTime() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}.${m}.${s}`;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
