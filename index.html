@@ -9,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -174,40 +175,8 @@
                 <div class="legend-item"><span class="dot-legend electric"></span> Daya Listrik (W)</div>
             </div>
 
-            <div class="chart-container">
-                <!-- Simple SVG Chart Mockup -->
-                <svg viewBox="0 0 1000 300" class="chart-svg">
-                    <!-- Grid Lines -->
-                    <line x1="50" y1="50" x2="950" y2="50" class="grid-line" />
-                    <line x1="50" y1="125" x2="950" y2="125" class="grid-line" />
-                    <line x1="50" y1="200" x2="950" y2="200" class="grid-line" />
-                    <line x1="50" y1="275" x2="950" y2="275" class="grid-line" />
-
-                    <!-- Y Axis Labels -->
-                    <text x="30" y="55" class="axis-text">100</text>
-                    <text x="30" y="130" class="axis-text">75</text>
-                    <text x="30" y="205" class="axis-text">50</text>
-                    <text x="30" y="280" class="axis-text">25</text>
-
-                    <!-- Chart Lines -->
-                    <!-- Water (Blue/Cyan) -->
-                    <path d="M50,110 Q200,110 350,110 T650,110 T950,110" class="line-path water-line" />
-                    <!-- Air (Green) -->
-                    <path d="M50,80 Q200,85 350,80 T650,80 T950,80" class="line-path air-line" />
-                    <!-- Soil (Purple) -->
-                    <path d="M50,180 Q200,170 350,175 T650,190 T950,160" class="line-path soil-line" />
-                    <!-- Electric (Yellow) -->
-                    <path d="M50,270 Q200,270 350,270 T650,270 T950,270" class="line-path electric-line" />
-
-                    <!-- X Axis Labels -->
-                    <text x="50" y="295" class="axis-text-x">07:42:24</text>
-                    <text x="200" y="295" class="axis-text-x">07:42:53</text>
-                    <text x="350" y="295" class="axis-text-x">07:43:40</text>
-                    <text x="500" y="295" class="axis-text-x">07:46:29</text>
-                    <text x="650" y="295" class="axis-text-x">07:47:33</text>
-                    <text x="800" y="295" class="axis-text-x">07:48:07</text>
-                    <text x="950" y="295" class="axis-text-x">07:53:00</text>
-                </svg>
+            <div class="chart-container" style="position: relative; height: 300px;">
+                <canvas id="liveChart"></canvas>
             </div>
         </section>
     </div>
@@ -224,43 +193,147 @@
         setInterval(updateTime, 1000);
         updateTime();
 
-        // Fetch Sensor Data
+        // -------------------------------------------------------
+        // CHART.JS CONFIGURATION
+        // -------------------------------------------------------
+        const ctx = document.getElementById('liveChart').getContext('2d');
+        const liveChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // Time labels
+                datasets: [
+                    {
+                        label: 'Kualitas Air (WQI)',
+                        borderColor: '#00e5ff', // Accent Blue
+                        backgroundColor: 'rgba(0, 229, 255, 0.1)',
+                        data: [],
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Kualitas Udara (AQI)',
+                        borderColor: '#00ff88', // Accent Green
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        data: [],
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Kualitas Tanah (SQI)',
+                        borderColor: '#ffaa00', // Accent Orange
+                        backgroundColor: 'rgba(255, 170, 0, 0.1)',
+                        data: [],
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Daya Listrik (W)',
+                        borderColor: '#d600ff', // Accent Purple
+                        backgroundColor: 'rgba(214, 0, 255, 0.1)',
+                        data: [],
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false // Using custom legend
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            color: '#8ab69f'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            color: '#8ab69f'
+                        },
+                        suggestedMax: 100
+                    }
+                },
+                animation: {
+                    duration: 0 // Disable animation for smoother updates
+                }
+            }
+        });
+
+        // -------------------------------------------------------
+        // FETCH DATA FUNCTION
+        // -------------------------------------------------------
         async function fetchData() {
             try {
-                const response = await fetch('api.php'); // Default GET returns JSON
-                if (!response.ok) throw new Error('Network response was not ok');
-
+                // 1. Fetch latest data for counters (Real-time)
+                const response = await fetch('api.php');
                 const data = await response.json();
 
-                if (data.error) {
-                    console.log('No data found');
-                    return;
+                if (!data.error) {
+                    // Update Main Cards
+                    if (data.kualitas_air !== undefined) {
+                        document.getElementById('val-water').innerText = data.kualitas_air;
+                        document.getElementById('detail-water').innerText = data.kualitas_air;
+                    }
+                    if (data.udara !== undefined) {
+                        document.getElementById('val-air').innerText = data.udara;
+                        document.getElementById('detail-air').innerText = data.udara;
+                    }
+                    if (data.tahan !== undefined) {
+                        document.getElementById('val-soil').innerText = data.tahan;
+                        document.getElementById('detail-soil').innerText = data.tahan;
+                    }
+                    if (data.daya_listrik !== undefined) {
+                        document.getElementById('val-electric').innerText = data.daya_listrik;
+                        document.getElementById('detail-electric').innerText = data.daya_listrik;
+                    }
                 }
 
-                // Update Main Cards
-                // data.kualitas_air -> Water
-                // data.udara -> Air
-                // data.tahan -> Soil
-                // data.daya_listrik -> Electric
+                // 2. Fetch History Data for Chart
+                const historyResponse = await fetch('api.php?mode=history');
+                const historyData = await historyResponse.json();
 
-                if (data.kualitas_air !== undefined) {
-                    document.getElementById('val-water').innerText = data.kualitas_air;
-                    document.getElementById('detail-water').innerText = data.kualitas_air;
-                }
+                if (Array.isArray(historyData)) {
+                    // Prepare arrays
+                    const labels = [];
+                    const waterData = [];
+                    const airData = [];
+                    const soilData = [];
+                    const electricData = [];
 
-                if (data.udara !== undefined) {
-                    document.getElementById('val-air').innerText = data.udara;
-                    document.getElementById('detail-air').innerText = data.udara;
-                }
+                    historyData.forEach(item => {
+                        // Format timestamp to HH:mm:ss
+                        const date = new Date(item.timestamp);
+                        const timeStr = date.toLocaleTimeString('id-ID', { hour12: false });
 
-                if (data.tahan !== undefined) {
-                    document.getElementById('val-soil').innerText = data.tahan;
-                    document.getElementById('detail-soil').innerText = data.tahan;
-                }
+                        labels.push(timeStr);
+                        waterData.push(item.kualitas_air);
+                        airData.push(item.udara);
+                        soilData.push(item.tahan);
+                        electricData.push(item.daya_listrik);
+                    });
 
-                if (data.daya_listrik !== undefined) {
-                    document.getElementById('val-electric').innerText = data.daya_listrik;
-                    document.getElementById('detail-electric').innerText = data.daya_listrik;
+                    // Update Chart Data
+                    liveChart.data.labels = labels;
+                    liveChart.data.datasets[0].data = waterData;
+                    liveChart.data.datasets[1].data = airData;
+                    liveChart.data.datasets[2].data = soilData;
+                    liveChart.data.datasets[3].data = electricData;
+
+                    liveChart.update();
                 }
 
             } catch (error) {

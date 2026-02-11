@@ -33,14 +33,33 @@ if (isset($_GET['kualitas_air']) && isset($_GET['tahan']) && isset($_GET['udara'
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
 } else {
-    // Mode Read: Ambil data terakhir dalam format JSON untuk frontend
+    // Mode Read
     header('Content-Type: application/json');
-    $sql = "SELECT * FROM sensor_logs ORDER BY id DESC LIMIT 1";
+
+    if (isset($_GET['mode']) && $_GET['mode'] == 'history') {
+        // Ambil 20 data terakhir untuk grafik, urutkan ASC agar timeline benar (kiri ke kanan)
+        // Subquery digunakan untuk mengambil 20 terakhir, lalu di-order ASC
+        $sql = "SELECT * FROM (
+                    SELECT * FROM sensor_logs ORDER BY id DESC LIMIT 20
+                ) AS sub ORDER BY id ASC";
+    } else {
+        // Ambil 1 data terakhir untuk real-time stats
+        $sql = "SELECT * FROM sensor_logs ORDER BY id DESC LIMIT 1";
+    }
+
     $result = $conn->query($sql);
 
+    $data = array();
     if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        echo json_encode($row);
+        if (isset($_GET['mode']) && $_GET['mode'] == 'history') {
+            while ($row = $result->fetch_assoc()) {
+                $data[] = $row;
+            }
+            echo json_encode($data);
+        } else {
+            $row = $result->fetch_assoc();
+            echo json_encode($row);
+        }
     } else {
         echo json_encode(["error" => "No data found"]);
     }
