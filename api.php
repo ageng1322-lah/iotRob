@@ -1,9 +1,9 @@
 <?php
 // Konfigurasi Database
 $servername = "localhost";
-$username = "lahsamyi_iotrobot";       // Ganti dengan username database Anda
-$password = "RHdV45zpw2DsZRzEvz3D";           // Ganti dengan password database Anda
-$dbname = "lahsamyi_iotrobot";    // Nama database
+$username = "hanifunm_dronewater";       // Ganti dengan username database Anda
+$password = "vCjycehgwKsL7Efjc4Lm";           // Ganti dengan password database Anda
+$dbname = "hanifunm_dronewater";    // Nama database
 
 // Membuat koneksi ke database
 $conn = new mysqli($servername, $username, $password, $dbname);
