@@ -1,0 +1,26 @@
+name: Deploy to Hostdata via FTP
+
+on:
+  push:
+    branches:
+      - main   # 🔴 GANTI jika branch kamu bukan "main"
+               # Misal branch kamu "master" → ganti jadi master
+
+jobs:
+  ftp-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Deploy files to Hostdata
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_SERVER }}      # 🔴 TIDAK diubah di sini
+          username: ${{ secrets.FTP_USERNAME }}  # 🔴 TIDAK diubah di sini
+          password: ${{ secrets.FTP_PASSWORD }}  # 🔴 TIDAK diubah di sini
+          port: 21                               # Biasanya 21, biarkan saja
+          server-dir: public_html/               # 🔴 GANTI jika project ada di subfolder
+                                                 # Contoh:
+                                                 # public_html/project1/
