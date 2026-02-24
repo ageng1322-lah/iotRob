@@ -17,10 +17,13 @@ jobs:
       - name: Deploy files to Hostdata
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_SERVER }}      # 🔴 TIDAK diubah di sini
-          username: ${{ secrets.FTP_USERNAME }}  # 🔴 TIDAK diubah di sini
-          password: ${{ secrets.FTP_PASSWORD }}  # 🔴 TIDAK diubah di sini
-          port: 21                               # Biasanya 21, biarkan saja
-          server-dir: public_html/               # 🔴 GANTI jika project ada di subfolder
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          secure: false
+          passive: true
+          server-dir: ./              # 🔴 GANTI jika project ada di subfolder
                                                  # Contoh:
                                                  # public_html/project1/
