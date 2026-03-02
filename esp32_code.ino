@@ -23,8 +23,8 @@ const char WIFI_PASSWORD[] = "PASSWORD_WIFI_ANDA"; // <<< GANTI INI
 //   "http://hanifunm.000webhostapp.com"  atau
 //   "http://192.168.1.100" (jika menggunakan IP lokal)
 // ============================================================
-const String HOST_NAME = "https://DOMAIN_HOSTING_ANDA"; // <<< GANTI INI
-const String PATH_NAME = "/robotik/api.php";             // Path ke file api.php
+const String HOST_NAME = "http://dronewater.hanifun.my.id"; // Ganti ke https:// setelah SSL aktif
+const String PATH_NAME = "/api.php";                        // Path ke api.php
 
 // ============================================================
 // PIN SENSOR (sesuaikan dengan wiring drone Anda)

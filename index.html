@@ -976,10 +976,16 @@
         // Ganti dengan URL domain hosting Anda yang sebenarnya!
         // Contoh: "https://hanifunm.000webhostapp.com/robotik/api.php"
         // ============================================================
-        const API_URL = "https://hanifunm.000webhostapp.com/robotik/api.php";
+        // ============================================================
+        // KONFIGURASI API URL
+        // CATATAN: Gunakan http:// karena SSL cert belum cover subdomain dronewater.*
+        // Setelah SSL diaktifkan di cPanel, ganti ke https://
+        // ============================================================
+        const API_URL = "http://dronewater.hanifun.my.id/api.php";
 
         // Tampilkan URL di panel
         document.getElementById('apiUrlDisplay').textContent = API_URL;
+        document.title = 'Drone Underwater — dronewater.hanifun.my.id';
 
         // ============================================================
         // BUBBLE ANIMATION (efek lautan)
