@@ -1,151 +1,103 @@
-/*
- * ============================================================
- * DRONE UNDERWATER — ESP32 Sensor Data Sender
- * Mengirim data sensor ke server hosting via WiFi (HTTP GET)
- * ============================================================
- * Target API : http://DOMAIN_ANDA/robotik/api.php
- * Interval   : Setiap 5 detik
- * ============================================================
- */
-
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-// ============================================================
-// KONFIGURASI WIFI — Ganti sesuai jaringan WiFi Anda
-// ============================================================
-const char WIFI_SSID[]     = "NAMA_WIFI_ANDA";     // <<< GANTI INI
-const char WIFI_PASSWORD[] = "PASSWORD_WIFI_ANDA"; // <<< GANTI INI
+// --- KONFIGURASI WIFI ---
+const char WIFI_SSID[]     = "fauzi";
+const char WIFI_PASSWORD[] = "q12345678";
 
-// ============================================================
-// KONFIGURASI SERVER HOSTING
-// Ganti dengan domain hosting Anda, contoh:
-//   "http://hanifunm.000webhostapp.com"  atau
-//   "http://192.168.1.100" (jika menggunakan IP lokal)
-// ============================================================
-const String HOST_NAME = "http://dronewater.hanifun.my.id"; // Ganti ke https:// setelah SSL aktif
-const String PATH_NAME = "/api.php";                        // Path ke api.php
+// --- KONFIGURASI SERVER ---
+// ✅ PERBAIKAN: Hapus trailing slash "/" di akhir HOST_NAME
+// Salah  : "http://dronewater.hanifun.my.id/"  → menghasilkan //api.php (double slash!)
+// Benar  : "http://dronewater.hanifun.my.id"   → menghasilkan /api.php  ✓
+String HOST_NAME = "http://dronewater.hanifun.my.id"; // ← TIDAK ADA / di akhir
+String PATH_NAME = "/api.php";
 
-// ============================================================
-// PIN SENSOR (sesuaikan dengan wiring drone Anda)
-// ============================================================
-// Contoh pin jika menggunakan sensor analog:
-// const int PIN_TURBIDITY  = 34; // Sensor kekeruhan air
-// const int PIN_DEPTH      = 35; // Sensor tekanan/kedalaman
-// const int PIN_TEMP       = 32; // Sensor suhu
-// const int PIN_VOLTAGE    = 33; // Sensor daya baterai
-
-// Interval pengiriman data (milidetik)
-const unsigned long SEND_INTERVAL = 5000; // 5 detik
-unsigned long lastSendTime = 0;
+// --- KONFIGURASI PIN ---
+#define TURB_PIN 34
+#define PH_PIN   35
 
 void setup() {
-    Serial.begin(115200);
-    Serial.println("\n=== DRONE UNDERWATER SENSOR SYSTEM ===");
+  Serial.begin(115200);
+  analogReadResolution(12);
 
-    // Sambungkan ke WiFi
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    Serial.print("Menghubungkan ke WiFi: ");
-    Serial.print(WIFI_SSID);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.println("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nConnected!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
 
-    int attempt = 0;
-    while (WiFi.status() != WL_CONNECTED && attempt < 30) {
-        delay(500);
-        Serial.print(".");
-        attempt++;
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-        Serial.println("\n✓ WiFi Terhubung!");
-        Serial.print("  IP Address : ");
-        Serial.println(WiFi.localIP());
-        Serial.print("  Signal     : ");
-        Serial.print(WiFi.RSSI());
-        Serial.println(" dBm");
-    } else {
-        Serial.println("\n✗ Gagal terhubung ke WiFi. Cek SSID/Password.");
-    }
+  // Tampilkan URL yang akan dipakai — pastikan TIDAK ada double slash
+  Serial.print("Target API : ");
+  Serial.println(HOST_NAME + PATH_NAME);
 }
 
 void loop() {
-    unsigned long currentTime = millis();
+  // 1. PEMBACAAN SENSOR (AVERAGING)
+  long sumT = 0;
+  long sumP = 0;
+  for (int i = 0; i < 100; i++) {
+    sumT += analogRead(TURB_PIN);
+    sumP += analogRead(PH_PIN);
+    delay(1);
+  }
 
-    // Kirim data setiap SEND_INTERVAL milidetik
-    if (currentTime - lastSendTime >= SEND_INTERVAL) {
-        lastSendTime = currentTime;
+  float vT = (sumT / 100.0) * (3.3 / 4095.0);
+  float vP = (sumP / 100.0) * (3.3 / 4095.0);
 
-        if (WiFi.status() == WL_CONNECTED) {
-            sendSensorData();
-        } else {
-            Serial.println("⚠ WiFi terputus, mencoba reconnect...");
-            WiFi.reconnect();
-            delay(3000);
-        }
-    }
-}
+  // 2. KALIBRASI & PERHITUNGAN
+  float ntu     = (1.65 - vT) * 1000;
+  if (ntu < 0) ntu = 0;
 
-void sendSensorData() {
-    // ============================================================
-    // BACA DATA SENSOR
-    // Ganti bagian simulasi ini dengan pembacaan sensor sebenarnya
-    // ============================================================
+  float nilaiPH = 7.0 + ((1.65 - vP) * 3.5) + 3.8;
+  nilaiPH = constrain(nilaiPH, 0.0, 14.0);
 
-    // [SIMULASI] — Ganti dengan analogRead(PIN_SENSOR) saat deploy
-    float kualitas_air = random(60, 100) + (random(0, 99) / 100.0); // WQI: 0-100
-    float tahan        = random(10, 900);                             // Resistansi/Kedalaman
-    float udara        = random(20, 40) + (random(0, 99) / 100.0);   // Suhu / AQI
-    float daya_listrik = random(100, 220) + (random(0, 99) / 100.0); // Tegangan baterai (V/W)
+  String statusAir = (ntu < 100 && nilaiPH >= 6.0 && nilaiPH <= 8.5) ? "BERSIH" : "KERUH";
 
-    /*
-     * Contoh pembacaan sensor NYATA (uncomment jika sudah pasang sensor):
-     *
-     * int rawTurbidity  = analogRead(PIN_TURBIDITY);
-     * float kualitas_air = map(rawTurbidity, 0, 4095, 0, 100);
-     *
-     * int rawDepth  = analogRead(PIN_DEPTH);
-     * float tahan   = rawDepth * (3.3 / 4095.0) * 100.0; // konversi tegangan
-     *
-     * float udara        = dht.readTemperature();
-     * float daya_listrik = ina.readBusVoltage();
-     */
+  // 3. TAMPILAN SERIAL MONITOR
+  Serial.print("pH: ");     Serial.print(nilaiPH, 1);
+  Serial.print(" | NTU: "); Serial.print(ntu, 0);
+  Serial.print(" | Status: "); Serial.println(statusAir);
 
-    // ============================================================
-    // KIRIM DATA KE SERVER VIA HTTP GET
-    // ============================================================
+  // 4. KIRIM DATA KE DASHBOARD
+  if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
 
-    String queryString = "?kualitas_air=" + String(kualitas_air, 2)
-                       + "&tahan="        + String(tahan, 2)
-                       + "&udara="        + String(udara, 2)
-                       + "&daya_listrik=" + String(daya_listrik, 2);
+    String queryString = "?kualitas_air=" + String(nilaiPH, 1)
+                       + "&tahan="        + String(ntu, 0)
+                       + "&udara="        + String(vT, 2)
+                       + "&daya_listrik=" + String(vP, 2);
 
+    // ✅ URL yang benar: http://dronewater.hanifun.my.id/api.php?...
     String serverPath = HOST_NAME + PATH_NAME + queryString;
 
-    Serial.println("\n--- Mengirim Data Sensor ---");
-    Serial.println("URL: " + serverPath);
+    Serial.print("Sending to: ");
+    Serial.println(serverPath);
 
     http.begin(serverPath.c_str());
-    http.setTimeout(10000); // Timeout 10 detik
-
+    http.setTimeout(10000);
     int httpCode = http.GET();
 
     if (httpCode > 0) {
-        if (httpCode == HTTP_CODE_OK) {
-            String payload = http.getString();
-            Serial.println("✓ Server Response: " + payload);
-        } else {
-            Serial.printf("⚠ HTTP Code: %d\n", httpCode);
-        }
+      if (httpCode == HTTP_CODE_OK) {
+        String payload = http.getString();
+        Serial.println("Response: " + payload);
+      } else {
+        Serial.printf("HTTP Code: %d\n", httpCode);
+      }
     } else {
-        Serial.printf("✗ HTTP Error: %s\n", http.errorToString(httpCode).c_str());
+      Serial.printf("Error: %s\n", http.errorToString(httpCode).c_str());
     }
-
     http.end();
 
-    // Log data yang dikirim ke Serial Monitor
-    Serial.println("--- Data Terkirim ---");
-    Serial.printf("  Kualitas Air  : %.2f WQI\n", kualitas_air);
-    Serial.printf("  Tahan/Kedalaman: %.2f\n", tahan);
-    Serial.printf("  Udara/Suhu    : %.2f °C\n", udara);
-    Serial.printf("  Daya Listrik  : %.2f W\n", daya_listrik);
+  } else {
+    Serial.println("WiFi Disconnected!");
+    WiFi.reconnect();
+  }
+
+  Serial.println("-----------------------------------------------------------");
+  delay(5000);
 }
