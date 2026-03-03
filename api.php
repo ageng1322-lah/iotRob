@@ -14,6 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// Tampilkan error untuk mempermudah debugging jika ada masalah koneksi database
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // ============================================================
 // Konfigurasi Database (sesuai dengan hosting Anda)
 // ============================================================
@@ -27,9 +31,11 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Cek koneksi
 if ($conn->connect_error) {
+    http_response_code(500); // Set status internal server error
     echo json_encode([
         "status" => "error",
-        "message" => "Connection failed: " . $conn->connect_error
+        "message" => "Connection failed: " . $conn->connect_error,
+        "hint" => "Pastikan username, password, dan nama database di hosting sudah benar."
     ]);
     exit();
 }

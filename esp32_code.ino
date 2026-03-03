@@ -1,15 +1,14 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 
 // --- KONFIGURASI WIFI ---
 const char WIFI_SSID[]     = "Nggakadajaringan";
 const char WIFI_PASSWORD[] = "nggakadapassword";
 
 // --- KONFIGURASI SERVER ---
-// ✅ PERBAIKAN: Hapus trailing slash "/" di akhir HOST_NAME
-// Salah  : "http://dronewater.hanifun.my.id/"  → menghasilkan //api.php (double slash!)
-// Benar  : "http://dronewater.hanifun.my.id"   → menghasilkan /api.php  ✓
-String HOST_NAME = "http://dronewater.hanifun.my.id"; // ← TIDAK ADA / di akhir
+// ✅ PERBAIKAN: Gunakan HTTPS karena hosting memaksa redirect, dan pastikan tidak ada "/" di akhir HOST_NAME
+String HOST_NAME = "https://dronewater.hanifun.my.id"; 
 String PATH_NAME = "/api.php";
 
 // --- KONFIGURASI PIN ---
@@ -64,6 +63,9 @@ void loop() {
 
   // 4. KIRIM DATA KE DASHBOARD
   if (WiFi.status() == WL_CONNECTED) {
+    WiFiClientSecure client;
+    client.setInsecure(); // Sangat penting: agar ESP32 bisa mengakses HTTPS tanpa verifikasi sertifikat SSL yang rumit
+
     HTTPClient http;
 
     String queryString = "?kualitas_air=" + String(nilaiPH, 1)
@@ -71,13 +73,13 @@ void loop() {
                        + "&udara="        + String(vT, 2)
                        + "&daya_listrik=" + String(vP, 2);
 
-    // ✅ URL yang benar: http://dronewater.hanifun.my.id/api.php?...
+    // URL yang benar: https://dronewater.hanifun.my.id/api.php?...
     String serverPath = HOST_NAME + PATH_NAME + queryString;
 
     Serial.print("Sending to: ");
     Serial.println(serverPath);
 
-    http.begin(serverPath.c_str());
+    http.begin(client, serverPath.c_str()); // Tambahkan parameter 'client' untuk HTTPS
     http.setTimeout(10000);
     int httpCode = http.GET();
 
