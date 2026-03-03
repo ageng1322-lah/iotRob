@@ -976,12 +976,9 @@
         // Ganti dengan URL domain hosting Anda yang sebenarnya!
         // Contoh: "https://hanifunm.000webhostapp.com/robotik/api.php"
         // ============================================================
-        // ============================================================
-        // KONFIGURASI API URL
-        // CATATAN: Gunakan http:// karena SSL cert belum cover subdomain dronewater.*
-        // Setelah SSL diaktifkan di cPanel, ganti ke https://
-        // ============================================================
-        const API_URL = "http://dronewater.hanifun.my.id/api.php";
+        // ✅ PERBAIKAN: Gunakan HTTPS karena website dimuat via HTTPS. 
+        // Menggunakan relative path "api.php" adalah cara paling aman agar protokol (http/https) selalu cocok.
+        const API_URL = "api.php";
 
         // Tampilkan URL di panel
         document.getElementById('apiUrlDisplay').textContent = API_URL;
@@ -1146,7 +1143,7 @@
         async function fetchData() {
             try {
                 // 1. REAL-TIME: Ambil data terbaru
-                const res = await fetch(API_URL, { cache: 'no-store' });
+                const res = await fetch(API_URL + '?t=' + Date.now(), { cache: 'no-store' });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                 const data = await res.json();
@@ -1243,10 +1240,10 @@
         }
 
         // ============================================================
-        // JALANKAN — Fetch awal + auto-refresh setiap 5 detik
+        // JALANKAN — Fetch awal + auto-refresh setiap 2 detik (lebih real-time)
         // ============================================================
         fetchData();
-        setInterval(fetchData, 5000);
+        setInterval(fetchData, 2000);
     </script>
 </body>
 
