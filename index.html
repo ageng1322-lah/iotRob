@@ -819,7 +819,7 @@
                     <span class="status-dot online" id="dot-water"></span>
                 </div>
                 <div class="stat-value" id="val-water">—</div>
-                <div class="stat-label">Kualitas Air &nbsp;<span class="stat-unit">WQI</span></div>
+                <div class="stat-label">Kualitas Air &nbsp;<span class="stat-unit">pH</span></div>
                 <div class="stat-bar-wrap">
                     <div class="stat-bar-fill" id="bar-water" style="--accent: var(--cyan)"></div>
                 </div>
@@ -845,7 +845,11 @@
                     <span class="status-dot online" id="dot-depth"></span>
                 </div>
                 <div class="stat-value" id="val-depth">—</div>
-                <div class="stat-label">Kedalaman / Tahan &nbsp;<span class="stat-unit">cm</span></div>
+                <div class="stat-label">
+                    Kedalaman / Tahan &nbsp;<span class="stat-unit">cm</span>
+                    <span id="txt-water-status"
+                        style="font-size: 0.72rem; display: block; margin-top: 4px; font-weight: 700;">Status: —</span>
+                </div>
                 <div class="stat-bar-wrap">
                     <div class="stat-bar-fill" id="bar-depth" style="--accent: var(--orange)"></div>
                 </div>
@@ -941,9 +945,9 @@
         <!-- ===== DETAIL ROW ===== -->
         <div class="detail-row">
             <div class="detail-card" data-col="water">
-                <div class="detail-label"><i class="fas fa-tint"></i> &nbsp;Kualitas Air (WQI)</div>
+                <div class="detail-label"><i class="fas fa-tint"></i> &nbsp;Kualitas Air (pH)</div>
                 <div class="detail-value" id="detail-water">—</div>
-                <div class="detail-unit">Water Quality Index</div>
+                <div class="detail-unit">pH Level (0.0 - 14.0)</div>
             </div>
             <div class="detail-card" data-col="air">
                 <div class="detail-label"><i class="fas fa-wind"></i> &nbsp;Suhu / Udara</div>
@@ -1171,6 +1175,14 @@
                     setVal('detail-air', air);
                     setVal('detail-depth', depth);
                     setVal('detail-battery', battery);
+
+                    // Update Status Air (BERSIH/KERUH) berdasarkan ntu (depth)
+                    const statusText = (parseFloat(depth) < 100) ? "BERSIH" : "KERUH";
+                    const statusEl = document.getElementById('txt-water-status');
+                    if (statusEl) {
+                        statusEl.textContent = "Status: " + statusText;
+                        statusEl.style.color = (statusText === "BERSIH") ? "var(--green)" : "var(--red)";
+                    }
 
                     dataCount++;
                     document.getElementById('dataCount').textContent = dataCount + ' fetch';
