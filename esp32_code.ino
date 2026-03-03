@@ -2,8 +2,8 @@
 #include <HTTPClient.h>
 
 // --- KONFIGURASI WIFI ---
-const char WIFI_SSID[]     = "fauzi";
-const char WIFI_PASSWORD[] = "q12345678";
+const char WIFI_SSID[]     = "Nggakadajaringan";
+const char WIFI_PASSWORD[] = "nggakadapassword";
 
 // --- KONFIGURASI SERVER ---
 // ✅ PERBAIKAN: Hapus trailing slash "/" di akhir HOST_NAME
