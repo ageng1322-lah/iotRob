@@ -18,9 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Konfigurasi Database (sesuai dengan hosting Anda)
 // ============================================================
 $servername = "localhost";
-$username = "hanifunm_dronewater";  // Username database hosting
-$password = "vCjycehgwKsL7Efjc4Lm"; // Password database hosting
-$dbname = "hanifunm_dronewater";  // Nama database di hosting
+$username = "hanifunm_drone_water_2";  // Username database hosting
+$password = "HMxh3WneUM2CfsrrXV4Y"; // Password database hosting
+$dbname = "hanifunm_drone_water_2";  // Nama database di hosting
 
 // Membuat koneksi ke database
 $conn = new mysqli($servername, $username, $password, $dbname);
